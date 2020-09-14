@@ -1,0 +1,11 @@
+CREATE DATABASE first_lab;
+USE first_lab;
+CREATE TABLE teachers (
+   personal_number VARCHAR(4),
+   lastname VARCHAR(10),
+   position VARCHAR(10),
+   department VARCHAR(10),
+   specialty VARCHAR(10),
+   home_phone INT(3)
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_CI;
