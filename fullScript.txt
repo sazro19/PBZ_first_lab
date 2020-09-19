@@ -72,3 +72,72 @@ VALUES ('8Г', '12П', '222Л', 112),
 	   ('12Г', '22П', '110Л', 210),
        ('10Г', '12П', '222Л', 210),
        ('10Г', '22П', '110Л', 210);
+	   
+SELECT *
+FROM teachers;
+
+SELECT *
+FROM student_groups WHERE specialty = 'ЭВМ';
+
+SELECT personal_number, classroom_number
+FROM classroom_numbers WHERE lesson_number = '18П';
+
+SELECT DISTINCT lessons.lesson_number, lessons.lesson_name 
+FROM lessons 
+JOIN classroom_numbers ON classroom_numbers.lesson_number = lessons.lesson_number 
+JOIN teachers ON classroom_numbers.personal_number = teachers.personal_number
+WHERE teachers.lastname = 'Костин';
+
+SELECT DISTINCT student_groups.group_number 
+FROM student_groups
+JOIN classroom_numbers ON classroom_numbers.group_number = student_groups.group_number
+JOIN teachers ON classroom_numbers.personal_number = teachers.personal_number
+WHERE teachers.lastname = 'Фролов';
+
+SELECT * 
+FROM lessons WHERE specialty = 'АСОИ';
+
+SELECT *
+FROM teachers WHERE specialty REGEXP 'АСОИ';
+
+SELECT DISTINCT teachers.lastname 
+FROM teachers
+JOIN classroom_numbers ON classroom_numbers.personal_number = teachers.personal_number
+WHERE classroom_numbers.classroom_number = 210;
+
+SELECT lessons.lesson_name, student_groups.group_name
+FROM classroom_numbers
+JOIN lessons ON lessons.lesson_number = classroom_numbers.lesson_number
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE classroom_number 
+BETWEEN 100 AND 200;
+
+SELECT DISTINCT s1.group_number, s2.group_number
+FROM student_groups s1, student_groups s2
+WHERE s1.specialty = s2.specialty AND s1.group_number <> s2.group_number;  
+
+SELECT SUM(persons_number)
+FROM student_groups WHERE specialty = 'ЭВМ';
+
+SELECT DISTINCT teachers.personal_number
+FROM teachers
+JOIN classroom_numbers ON classroom_numbers.personal_number = teachers.personal_number
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE student_groups.specialty = 'ЭВМ';
+
+13?
+
+14?
+
+SELECT DISTINCT *
+FROM lessons
+JOIN classroom_numbers ON classroom_numbers.lesson_number = lessons.lesson_number
+WHERE classroom_numbers.personal_number <> '221П';
+
+SELECT DISTINCT *
+FROM lessons
+WHERE lessons.lesson_number NOT IN (
+SELECT distinct classroom_numbers.lesson_number
+FROM classroom_numbers
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE student_groups.group_name = 'М-6');
