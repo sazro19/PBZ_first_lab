@@ -141,3 +141,77 @@ SELECT distinct classroom_numbers.lesson_number
 FROM classroom_numbers
 JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
 WHERE student_groups.group_name = 'М-6');
+
+SELECT DISTINCT *
+FROM teachers 
+WHERE teachers.position = 'Доцент' AND teachers.personal_number IN (
+SELECT DISTINCT classroom_numbers.personal_number 
+FROM classroom_numbers
+WHERE classroom_numbers.group_number IN ('8Г', '3Г')
+);
+
+SELECT DISTINCT classroom_numbers.lesson_number,
+                classroom_numbers.personal_number,
+				classroom_numbers.group_number
+FROM classroom_numbers
+JOIN teachers ON teachers.personal_number = classroom_numbers.personal_number
+WHERE teachers.department = 'ЭВМ' AND teachers.specialty REGEXP 'АСОИ';
+
+SELECT DISTINCT student_groups.group_number
+FROM student_groups
+JOIN classroom_numbers ON classroom_numbers.group_number = student_groups.group_number
+JOIN teachers ON teachers.personal_number = classroom_numbers.personal_number
+WHERE student_groups.specialty = teachers.specialty;
+
+SELECT DISTINCT teachers.personal_number
+FROM teachers
+JOIN classroom_numbers ON classroom_numbers.personal_number = teachers.personal_number
+JOIN lessons ON lessons.lesson_number = classroom_numbers.lesson_number
+WHERE teachers.specialty = 'ЭВМ' AND lessons.specialty IN (
+SELECT DISTINCT student_groups.specialty
+FROM student_groups);
+
+SELECT DISTINCT student_groups.specialty
+FROM student_groups
+JOIN classroom_numbers ON classroom_numbers.group_number = student_groups.group_number
+JOIN teachers ON teachers.personal_number = classroom_numbers.personal_number
+WHERE teachers.department = 'АСУ' AND teachers.specialty REGEXP student_groups.specialty;
+
+SELECT DISTINCT lessons.lesson_number
+FROM lessons
+JOIN classroom_numbers ON classroom_numbers.lesson_number = lessons.lesson_number
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE student_groups.group_name = 'АС-8';
+
+SELECT DISTINCT student_groups.group_number
+FROM student_groups
+JOIN classroom_numbers ON classroom_numbers.group_number = student_groups.group_number
+WHERE classroom_numbers.lesson_number IN (
+SELECT classroom_numbers.lesson_number
+FROM classroom_numbers
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE student_groups.group_name = 'АС-8');
+
+SELECT DISTINCT student_groups.group_number
+FROM student_groups
+JOIN classroom_numbers ON classroom_numbers.group_number = student_groups.group_number
+WHERE classroom_numbers.lesson_number NOT IN (
+SELECT classroom_numbers.lesson_number
+FROM classroom_numbers
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE student_groups.group_name = 'АС-8');
+
+SELECT DISTINCT group_number
+FROM classroom_numbers
+WHERE lesson_number NOT IN (
+SELECT lesson_number
+FROM classroom_numbers
+WHERE personal_number = '430Л');
+
+SELECT DISTINCT personal_number
+FROM classroom_numbers
+JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
+WHERE student_groups.group_name = 'Э-15' AND lesson_number NOT IN (
+SELECT lesson_number
+FROM classroom_numbers
+WHERE lesson_number = '12П');
