@@ -299,3 +299,34 @@ VALUES ('П1', 'Д1',	'ПР1', 200),
        ('П5', 'Д4',	'ПР4', 800),
        ('П5', 'Д5',	'ПР4', 400),
        ('П5', 'Д6',	'ПР4', 500);
+	   
+-- 24  
+SELECT DISTINCT id
+FROM suppliers_s
+WHERE supplier_status < (
+SELECT supplier_status
+FROM suppliers_s
+WHERE id = 'П1'
+)
+
+-- 19
+SELECT DISTINCT projects_j.name_pr 
+FROM projects_j
+JOIN details_count ON details_count.project_id = projects_j.id
+WHERE details_count.supplier_id = 'П1'
+
+-- 27
+
+DELIMITER //
+CREATE PROCEDURE more_than_average ()
+  BEGIN
+SET @i := 1;
+SET @result = '';
+WHILE @i < 8 DO
+SET @result = (SELECT DISTINCT supplier_id
+FROM details_count
+WHERE detail_id = 'Д1' AND project_id = CONCAT('ПР', CAST(@i AS CHAR)) AND count_s > (SELECT SUM(count_s) FROM details_count WHERE detail_id = 'Д1' AND project_id = CONCAT('ПР', CAST(@i AS CHAR)))/(SELECT COUNT(*) FROM details_count WHERE detail_id = 'Д1' AND project_id = CONCAT('ПР', CAST(@i AS CHAR))));
+SET @i := @i + 1;
+END WHILE;
+END //
+
