@@ -125,9 +125,26 @@ JOIN classroom_numbers ON classroom_numbers.personal_number = teachers.personal_
 JOIN student_groups ON student_groups.group_number = classroom_numbers.group_number
 WHERE student_groups.specialty = 'ЭВМ';
 
-13?
+SELECT DISTINCT lesson_number
+FROM classroom_numbers
+GROUP BY lesson_number
+HAVING count(1) = (SELECT count(1) FROM student_groups);
 
-14?
+SELECT DISTINCT lastname 
+FROM teachers AS t
+JOIN classroom_numbers AS cn ON t.personal_number = cn.personal_number
+WHERE cn.personal_number IN (
+    SELECT DISTINCT cn.personal_number 
+    FROM classroom_numbers
+    WHERE lesson_number IN (
+        SELECT DISTINCT lesson_number
+        FROM classroom_numbers
+        WHERE personal_number IN (
+            SELECT DISTINCT personal_number 
+                FROM classroom_numbers
+                WHERE lesson_number = '14П')
+    )
+);
 
 SELECT DISTINCT *
 FROM lessons
@@ -255,7 +272,7 @@ id VARCHAR(5),
 name_pr VARCHAR(30),
 city VARCHAR(30),
 PRIMARY KEY(id)
-)
+);
 
 INSERT INTO projects_j (id, name_pr, city)
 VALUES ('ПР1', 'ИПР1', 'Минск'),
@@ -272,7 +289,7 @@ detail_id VARCHAR(5) REFERENCES details_p(id),
 project_id VARCHAR(5) REFERENCES projects_pr(id),
 count_s INT(5),
 PRIMARY KEY (supplier_id, detail_id, project_id)
-)
+);
 
 INSERT INTO details_count (supplier_id, detail_id, project_id, count_s)
 VALUES ('П1', 'Д1',	'ПР1', 200),
@@ -307,16 +324,15 @@ WHERE supplier_status < (
 SELECT supplier_status
 FROM suppliers_s
 WHERE id = 'П1'
-)
+);
 
 -- 19
 SELECT DISTINCT projects_j.name_pr 
 FROM projects_j
 JOIN details_count ON details_count.project_id = projects_j.id
-WHERE details_count.supplier_id = 'П1'
+WHERE details_count.supplier_id = 'П1';
 
 -- 27
-
 DELIMITER //
 CREATE PROCEDURE more_than_average ()
   BEGIN
@@ -328,5 +344,50 @@ FROM details_count
 WHERE detail_id = 'Д1' AND project_id = CONCAT('ПР', CAST(@i AS CHAR)) AND count_s > (SELECT SUM(count_s) FROM details_count WHERE detail_id = 'Д1' AND project_id = CONCAT('ПР', CAST(@i AS CHAR)))/(SELECT COUNT(*) FROM details_count WHERE detail_id = 'Д1' AND project_id = CONCAT('ПР', CAST(@i AS CHAR))));
 SET @i := @i + 1;
 END WHILE;
-END //
+END //;
+CALL PROCEDURE more_than_average;
 
+--6
+SELECT DISTINCT s1.id, s2.id, s3.id
+FROM suppliers_s s1, details_p s2, projects_j s3
+WHERE s1.city = s2.city AND s2.city = s3.city AND s1.city = s3.city;
+
+--1
+SELECT *
+FROM projects_j;
+
+--9
+SELECT DISTINCT details_p.id
+FROM details_p
+JOIN details_count ON details_count.detail_id = details_p.id
+JOIN suppliers_s ON suppliers_s.id = details_count.suppliers_id
+WHERE suppliers_s.city = 'Лондон';
+
+--13
+SELECT DISTINCT projects_j.id 
+FROM projects_j
+JOIN details_count ON details_count.project_id = projects_j.id
+JOIN suppliers_s ON suppliers_s.id = details_count.supplier_id
+WHERE suppliers_s.city <> projects_j.city; 
+
+--35
+SELECT DISTINCT s1.supplier_id, s2.detail_id
+FROM details_count AS s1, details_count AS s2
+GROUP BY s1.supplier_id, s2.detail_id
+HAVING s2.detail_id NOT IN (
+SELECT s2.detail_id
+FROM details_count AS s2
+WHERE s1.supplier_id = s2.supplier_id
+);
+
+--18
+SELECT detail_id
+FROM details_count
+GROUP BY detail_id 
+HAVING AVG(count_s) > 320;
+
+--33
+SELECT DISTINCT suppliers_s.city
+FROM suppliers_s
+JOIN details_count ON details_count.supplier_id = suppliers_s.id
+JOIN details_p ON details_p.id = details_count.detail_id;
